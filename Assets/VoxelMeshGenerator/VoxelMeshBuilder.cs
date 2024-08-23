@@ -6,15 +6,19 @@ public class VoxelMeshBuilder : MonoBehaviour
 {
     [SerializeField] int atlasSize;
     MeshFilter meshFilter;
+    MeshCollider meshCollider;
 
     private void Awake()
     {
         meshFilter = GetComponent<MeshFilter>();
+        meshCollider = GetComponent<MeshCollider>();
     }
 
     public void BuildChunk(Voxel[,,] voxelData)
     {
-        meshFilter.mesh = GenerateMesh(voxelData);
+        Mesh mesh = GenerateMesh(voxelData);
+        meshFilter.mesh = mesh;
+        meshCollider.sharedMesh = mesh;
     }
 
     Mesh GenerateMesh(Voxel[,,] voxelData)
