@@ -702,8 +702,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 046cb7e87fa2fd84995c184dcd79b6cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkSize: 16
-  mapSize: {x: 4, y: 5, z: 4}
+  chunkSize: 14
+  mapSize: {x: 4, y: 7, z: 4}
   chunkPrefab: {fileID: 9151628178358892403, guid: b4a598f64d967ef44bf8916d8166eac1,
     type: 3}
   airVoxel: {fileID: 11400000, guid: 323be2defe8092b41bf1d8c6e049a198, type: 2}
@@ -722,8 +722,8 @@ MonoBehaviour:
   fullVoxel: {fileID: 11400000, guid: 0f99a178128915547b562f8001bedbda, type: 2}
   otherFullVoxel: {fileID: 11400000, guid: e681163a16ec9604eab9e8872a6b5389, type: 2}
   airVoxel: {fileID: 11400000, guid: 323be2defe8092b41bf1d8c6e049a198, type: 2}
-  noiseScale: 10
-  threashold: 0.6
+  noiseScale: 20
+  threashold: 0.5
 --- !u!1 &2023375061
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,7 +12,7 @@ public class MapBuilder : MonoBehaviour
     NoiseGenerator noiseGenerator;
     Voxel[,,] voxelData;
     Dictionary<Vector3Int, VoxelMeshBuilder> builtChunks;
-
+    int realChunkSize;
     private void Awake()
     {
         noiseGenerator = GetComponent<NoiseGenerator>();
@@ -26,13 +26,12 @@ public class MapBuilder : MonoBehaviour
 
     public void SetVoxel(Vector3Int voxelPos, Voxel voxel)
     {
-        if (voxelPos.x >= 0 && voxelPos.x < voxelData.GetLength(0))
-            if (voxelPos.y >= 0 && voxelPos.y < voxelData.GetLength(1))
-                if (voxelPos.z >= 0 && voxelPos.z < voxelData.GetLength(2))
+        if (voxelPos.x >= 1 && voxelPos.x < voxelData.GetLength(0) - 1)
+            if (voxelPos.y >= 1 && voxelPos.y < voxelData.GetLength(1) - 1)
+                if (voxelPos.z >= 1 && voxelPos.z < voxelData.GetLength(2) - 1)
                 {
                     voxelData[voxelPos.x, voxelPos.y, voxelPos.z] = voxel;
                     Vector3Int chunkPos = GetChunkPosOfVoxel(voxelPos);
-                    Debug.Log($"Target: {chunkPos}");
                     Vector3Int[] neighbourChunks = new Vector3Int[]
                     {
                         new Vector3Int(0, 0, 0),
@@ -45,12 +44,9 @@ public class MapBuilder : MonoBehaviour
                     };
                     foreach (Vector3Int offset in neighbourChunks )
                     {
-                        Debug.Log($"Real: {chunkPos + offset}");
-                        Debug.Log(builtChunks.ContainsKey((chunkPos + offset) * (chunkSize - 2)));
-                        if (builtChunks.TryGetValue((chunkPos + offset) * (chunkSize - 2), out VoxelMeshBuilder chunk))
+                        if (builtChunks.TryGetValue((chunkPos + offset) * realChunkSize, out VoxelMeshBuilder chunk))
                         {
-                            Debug.Log("FR");
-                            chunk.BuildChunk(getChunkDataFromChunkPos((chunkPos + offset) * (chunkSize - 2)));
+                            chunk.BuildChunk(getChunkDataFromChunkPos((chunkPos + offset) * realChunkSize));
                         }
                     }
                 }
@@ -58,9 +54,9 @@ public class MapBuilder : MonoBehaviour
 
     public Voxel GetVoxel(Vector3Int voxelPos)
     {
-        if (voxelPos.x >= 0 && voxelPos.x < voxelData.GetLength(0))
-            if (voxelPos.y >= 0 && voxelPos.y < voxelData.GetLength(1))
-                if (voxelPos.z >= 0 && voxelPos.z < voxelData.GetLength(2))
+        if (voxelPos.x >= 1 && voxelPos.x < voxelData.GetLength(0) - 1)
+            if (voxelPos.y >= 1 && voxelPos.y < voxelData.GetLength(1) - 1)
+                if (voxelPos.z >= 1 && voxelPos.z < voxelData.GetLength(2) - 1)
                 {
                     return voxelData[voxelPos.x, voxelPos.y, voxelPos.z];
                 }
@@ -69,17 +65,18 @@ public class MapBuilder : MonoBehaviour
 
     void GenerateMap()
     {
-        voxelData = new Voxel[mapSize.x * chunkSize, mapSize.y * chunkSize, mapSize.z * chunkSize];
-        for (int x = 0; x < mapSize.x * chunkSize; x++)
+        realChunkSize = chunkSize - 2;
+        voxelData = new Voxel[mapSize.x * realChunkSize + 2, mapSize.y * realChunkSize + 2, mapSize.z * realChunkSize + 2];
+        for (int x = 0; x < mapSize.x * realChunkSize + 2; x++)
         {
-            for (int y = 0; y < mapSize.y * chunkSize; y++)
+            for (int y = 0; y < mapSize.y * realChunkSize + 2; y++)
             {
-                for (int z = 0; z < mapSize.z * chunkSize; z++)
+                for (int z = 0; z < mapSize.z * realChunkSize + 2; z++)
                 {
                     voxelData[x, y, z] = noiseGenerator.GetVoxelAtPos(new Vector3Int(x, y, z));
-                    if (x == 0 || x == mapSize.x * (chunkSize - 2) + 1) voxelData[x, y, z] = airVoxel;
-                    if (y == 0 || y == mapSize.y * (chunkSize - 2) + 1) voxelData[x, y, z] = airVoxel;
-                    if (z == 0 || z == mapSize.z * (chunkSize - 2) + 1) voxelData[x, y, z] = airVoxel;
+                    if (x == 0 || x == mapSize.x * realChunkSize + 1) voxelData[x, y, z] = airVoxel;
+                    if (y == 0 || y == mapSize.y * realChunkSize + 1) voxelData[x, y, z] = airVoxel;
+                    if (z == 0 || z == mapSize.z * realChunkSize + 1) voxelData[x, y, z] = airVoxel;
                 }
             }
         }
@@ -120,7 +117,7 @@ public class MapBuilder : MonoBehaviour
 
     void BuildChunk(int chunkX, int chunkY, int chunkZ)
     {
-        Vector3Int chunkPos = new Vector3Int(chunkX * (chunkSize - 2), chunkY * (chunkSize - 2), chunkZ * (chunkSize - 2));
+        Vector3Int chunkPos = new Vector3Int(chunkX * realChunkSize, chunkY * realChunkSize, chunkZ * realChunkSize);
         Voxel[,,] chunkData = getChunkDataFromChunkPos(chunkPos);
         VoxelMeshBuilder chunkI = Instantiate(chunkPrefab);
         chunkI.transform.position = chunkPos;
@@ -130,9 +127,9 @@ public class MapBuilder : MonoBehaviour
 
     Vector3Int GetChunkPosOfVoxel(Vector3Int voxelPos)
     {
-        int x = Mathf.FloorToInt((float)voxelPos.x / (chunkSize - 2));
-        int y = Mathf.FloorToInt((float)voxelPos.y / (chunkSize - 2));
-        int z = Mathf.FloorToInt((float)voxelPos.z / (chunkSize - 2));
+        int x = Mathf.FloorToInt((float)(voxelPos.x - 1) / realChunkSize);
+        int y = Mathf.FloorToInt((float)(voxelPos.y - 1) / realChunkSize);
+        int z = Mathf.FloorToInt((float)(voxelPos.z - 1) / realChunkSize);
         return new Vector3Int(x, y, z);
     }
 }
