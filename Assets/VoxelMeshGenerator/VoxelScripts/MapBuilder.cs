@@ -24,10 +24,52 @@ public class MapBuilder : MonoBehaviour
         BuildMap();
     }
 
+    public void FillVoxels(Vector3Int[] voxelPositions, Voxel voxel)
+    {
+        List<Vector3Int> chunksToRegen = new List<Vector3Int>();
+        foreach (Vector3Int voxelPos in voxelPositions)
+        {
+            if (voxelPos.x >= 1 && voxelPos.x < voxelData.GetLength(0) - 1)
+            {
+                if (voxelPos.y >= 1 && voxelPos.y < voxelData.GetLength(1) - 1)
+                {
+                    if (voxelPos.z >= 1 && voxelPos.z < voxelData.GetLength(2) - 1)
+                    {
+                        voxelData[voxelPos.x, voxelPos.y, voxelPos.z] = voxel;
+                        Vector3Int chunkPos = GetChunkPosOfVoxel(voxelPos);
+                        Vector3Int[] neighbourChunks = new Vector3Int[]
+                        {
+                            new Vector3Int(0, 0, 0),
+                            new Vector3Int(1, 0, 0),
+                            new Vector3Int(0, 1, 0),
+                            new Vector3Int(0, 0, 1),
+                            new Vector3Int(-1, 0, 0),
+                            new Vector3Int(0, -1, 0),
+                            new Vector3Int(0, 0, -1),
+                        };
+                        foreach (Vector3Int offset in neighbourChunks )
+                        {
+                            if (!chunksToRegen.Contains(chunkPos + offset)) chunksToRegen.Add(chunkPos + offset);
+                        }
+                    }
+                }
+            }
+        }
+        foreach (Vector3Int chunkPos in chunksToRegen)
+        {
+            if (builtChunks.TryGetValue(chunkPos * realChunkSize, out VoxelMeshBuilder chunk))
+            {
+                chunk.BuildChunk(getChunkDataFromChunkPos(chunkPos * realChunkSize));
+            }
+        }
+    }
+
     public void SetVoxel(Vector3Int voxelPos, Voxel voxel)
     {
         if (voxelPos.x >= 1 && voxelPos.x < voxelData.GetLength(0) - 1)
+        {
             if (voxelPos.y >= 1 && voxelPos.y < voxelData.GetLength(1) - 1)
+            {
                 if (voxelPos.z >= 1 && voxelPos.z < voxelData.GetLength(2) - 1)
                 {
                     voxelData[voxelPos.x, voxelPos.y, voxelPos.z] = voxel;
@@ -50,6 +92,8 @@ public class MapBuilder : MonoBehaviour
                         }
                     }
                 }
+            }
+        }
     }
 
     public Voxel GetVoxel(Vector3Int voxelPos)
