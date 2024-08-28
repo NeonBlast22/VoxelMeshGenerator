@@ -73,27 +73,35 @@ public class MapBuilder : MonoBehaviour
                 if (voxelPos.z >= 1 && voxelPos.z < voxelData.GetLength(2) - 1)
                 {
                     voxelData[voxelPos.x, voxelPos.y, voxelPos.z] = voxel;
-                    Vector3Int chunkPos = GetChunkPosOfVoxel(voxelPos);
-                    Vector3Int[] neighbourChunks = new Vector3Int[]
+                    Vector3Int[] chunksToUpdate = getChunksToUpdate(voxelPos);
+
+                    foreach (Vector3Int chunkPos in chunksToUpdate)
                     {
-                        new Vector3Int(0, 0, 0),
-                        new Vector3Int(1, 0, 0),
-                        new Vector3Int(0, 1, 0),
-                        new Vector3Int(0, 0, 1),
-                        new Vector3Int(-1, 0, 0),
-                        new Vector3Int(0, -1, 0),
-                        new Vector3Int(0, 0, -1),
-                    };
-                    foreach (Vector3Int offset in neighbourChunks )
-                    {
-                        if (builtChunks.TryGetValue((chunkPos + offset) * realChunkSize, out VoxelMeshBuilder chunk))
+                        if (builtChunks.TryGetValue(chunkPos * realChunkSize, out VoxelMeshBuilder chunk))
                         {
-                            chunk.BuildChunk(getChunkDataFromChunkPos((chunkPos + offset) * realChunkSize));
+                            chunk.BuildChunk(getChunkDataFromChunkPos(chunkPos * realChunkSize));
                         }
                     }
                 }
             }
         }
+    }
+
+    Vector3Int[] getChunksToUpdate(Vector3Int voxelPos)
+    {
+        List<Vector3Int> chunksToUpdate = new List<Vector3Int>();
+        Vector3Int chunkPos = GetChunkPosOfVoxel(voxelPos);
+        chunksToUpdate.Add(chunkPos);
+        Vector3Int chunkRelative = new Vector3Int(voxelPos.x - (chunkPos.x * realChunkSize), voxelPos.y - (chunkPos.y * realChunkSize), voxelPos.z - (chunkPos.z * realChunkSize));
+        Debug.Log(chunkRelative);
+        if (chunkRelative.x >= realChunkSize) chunksToUpdate.Add(new Vector3Int(1, 0, 0) + chunkPos);
+        if (chunkRelative.x <= 1) chunksToUpdate.Add(new Vector3Int(-1, 0, 0) + chunkPos);
+        if (chunkRelative.y >= realChunkSize) chunksToUpdate.Add(new Vector3Int(0, 1, 0) + chunkPos);
+        if (chunkRelative.y <= 1) chunksToUpdate.Add(new Vector3Int(0, -1, 0) + chunkPos);
+        if (chunkRelative.z >= realChunkSize) chunksToUpdate.Add(new Vector3Int(0, 0, 1) + chunkPos);
+        if (chunkRelative.z <= 1) chunksToUpdate.Add(new Vector3Int(0, 0, -1) + chunkPos);
+
+        return chunksToUpdate.ToArray();
     }
 
     public Voxel GetVoxel(Vector3Int voxelPos)
