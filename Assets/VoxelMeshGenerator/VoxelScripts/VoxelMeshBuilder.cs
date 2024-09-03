@@ -47,6 +47,7 @@ public class VoxelMeshBuilder : MonoBehaviour
                     }
                     else
                     {
+                        Debug.Log("Yo");
                         Vector3[] VertPos = new Vector3[8]{
                         new Vector3(-1, 1, -1), new Vector3(-1, 1, 1),
                         new Vector3(1, 1, 1), new Vector3(1, 1, -1),
