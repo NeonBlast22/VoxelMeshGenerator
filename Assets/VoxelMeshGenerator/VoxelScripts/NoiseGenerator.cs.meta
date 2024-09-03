@@ -3,7 +3,10 @@ guid: 8d92c6e96b12d2147a0ee939dab5f7f0
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - fullVoxel: {fileID: 11400000, guid: 0f99a178128915547b562f8001bedbda, type: 2}
+  - otherFullVoxel: {fileID: 11400000, guid: e681163a16ec9604eab9e8872a6b5389, type: 2}
+  - airVoxel: {fileID: 11400000, guid: 323be2defe8092b41bf1d8c6e049a198, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Air
   m_EditorClassIdentifier: 
   uvCoordinate: {x: 0, y: 0}
-  isAir: 1
+  nonSolid: 1
